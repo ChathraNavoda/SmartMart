@@ -1,17 +1,19 @@
 import 'dart:developer';
-import '../../../models/coupon.dart';
-import '../../login_screen/provider/user_provider.dart';
-import '../../../services/http_services.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_cart/flutter_cart.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+
 import '../../../core/data/data_provider.dart';
 import '../../../models/api_response.dart';
+import '../../../models/coupon.dart';
+import '../../../services/http_services.dart';
 import '../../../utility/constants.dart';
 import '../../../utility/snack_bar_helper.dart';
+import '../../login_screen/provider/user_provider.dart';
 
 class CartProvider extends ChangeNotifier {
   HttpService service = HttpService();
@@ -47,18 +49,15 @@ class CartProvider extends ChangeNotifier {
 
   //TODO: should complete clearCartItems
 
-
   //TODO: should complete checkCoupon
 
   //TODO: should complete getCouponDiscountAmount
-
 
   //TODO: should complete submitOrder
 
   //TODO: should complete addOrder
 
   //TODO: should complete cartItemToOrderItem
-
 
   clearCouponDiscount() {
     couponApplied = null;
@@ -88,11 +87,12 @@ class CartProvider extends ChangeNotifier {
           "postal_code": postalCodeController.text,
           "country": "US"
         },
-        "amount":  100, //TODO: should complete amount grand total
+        "amount": 100, //TODO: should complete amount grand total
         "currency": "usd",
         "description": "Your transaction description here"
       };
-      Response response = await service.addItem(endpointUrl: 'payment/stripe', itemData: paymentData);
+      Response response = await service.addItem(
+          endpointUrl: 'payment/stripe', itemData: paymentData);
       final data = await response.body;
       final paymentIntent = data['paymentIntent'];
       final ephemeralKey = data['ephemeralKey'];
@@ -160,7 +160,8 @@ class CartProvider extends ChangeNotifier {
 
   Future<void> razorpayPayment({required void Function() operation}) async {
     try {
-      Response response = await service.addItem(endpointUrl: 'payment/razorpay', itemData: {});
+      Response response =
+          await service.addItem(endpointUrl: 'payment/razorpay', itemData: {});
       final data = await response.body;
       String? razorpayKey = data['key'];
       if (razorpayKey != null && razorpayKey != '') {
@@ -171,16 +172,22 @@ class CartProvider extends ChangeNotifier {
           "currency": 'INR',
           'description': 'Your transaction description',
           'send_sms_hash': true,
-          "prefill": {"email": _userProvider.getLoginUsr()?.name, "contact": ''},
+          "prefill": {
+            "email": _userProvider.getLoginUsr()?.name,
+            "contact": ''
+          },
           "theme": {'color': '#FFE64A'},
-          "image": 'https://store.rapidflutter.com/digitalAssetUpload/rapidlogo.png',
+          "image":
+              'https://store.rapidflutter.com/digitalAssetUpload/rapidlogo.png',
         };
         razorpay.open(options);
-        razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, (PaymentSuccessResponse response) {
+        razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS,
+            (PaymentSuccessResponse response) {
           operation();
           return;
         });
-        razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, (PaymentFailureResponse response) {
+        razorpay.on(Razorpay.EVENT_PAYMENT_ERROR,
+            (PaymentFailureResponse response) {
           SnackBarHelper.showErrorSnackBar('Error ${response.message}');
           return;
         });
